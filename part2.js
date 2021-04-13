@@ -21,20 +21,21 @@ const rotate = () => {
 
 draw.style.display = "none";
 
-shuffle.addEventListener("click", () => {
-	axios.get(shuffleURL)
-		.then((res) => {
-			deckID = res.data.deck_id;
-			const drawURL = baseURL + deckID + "/draw/?count=52";
-			return axios.get(drawURL);
-		})
-		.then((res) => {
-			cardsArray = res.data.cards;
-			cards = cardsArray[Symbol.iterator]();
-		})
-		.catch((err) => console.log(err));
-	draw.style.display = "block";
-	shuffle.style.display = "none";
+shuffle.addEventListener("click", async () => {
+	try {
+		const newDeck = await axios.get(shuffleURL);
+		deckID = newDeck.data.deck_id;
+		const drawURL = baseURL + deckID + "/draw/?count=52";
+
+		const deck = await axios.get(drawURL);
+		cardsArray = deck.data.cards;
+		cards = cardsArray[Symbol.iterator]();
+
+		draw.style.display = "block";
+		shuffle.style.display = "none";
+	} catch (err) {
+		console.log(err);
+	}
 });
 
 draw.addEventListener("click", () => {
