@@ -19,17 +19,28 @@ numberSubmit.addEventListener("click", function (evt) {
 
 	numberString = numberString.slice(0, numberString.length - 1);
 
-	for (let i = 0; i < 5; i++) {
+	for (let i = 0; i < 4; i++) {
 		numbersRequests.push(axios.get(url + numberString));
 	}
+
 	Promise.all(numbersRequests)
 		.then((result) => {
+			const factsArray = [[], [], [], []];
 			for (let facts of result) {
+				let index = 0;
 				for (let fact in facts.data) {
 					p = document.createElement("p");
 					p.innerText = facts.data[fact];
-					for (let div of numberDivs) {
+					factsArray[index].push(p);
+					index++;
+				}
+				index = 0;
+				for (let div of numberDivs) {
+					for (let fact of factsArray[index]) {
+						div.appendChild(fact);
 					}
+					div.style.backgroundColor = "gray";
+					index++;
 				}
 			}
 		})
