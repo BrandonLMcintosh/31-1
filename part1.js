@@ -10,7 +10,7 @@ const random = () => {
 	return Math.floor(Math.random() * 100 + 1);
 };
 
-numberSubmit.addEventListener("click", function (evt) {
+numberSubmit.addEventListener("click", async function (evt) {
 	const numbersRequests = [];
 	let numberString = "";
 	for (let number of numberInputs) {
@@ -23,30 +23,34 @@ numberSubmit.addEventListener("click", function (evt) {
 		numbersRequests.push(axios.get(url + numberString));
 	}
 
-	Promise.all(numbersRequests)
-		.then((result) => {
-			const factsArray = [[], [], [], []];
-			for (let facts of result) {
-				let index = 0;
-				for (let fact in facts.data) {
-					p = document.createElement("p");
-					p.innerText = facts.data[fact];
-					factsArray[index].push(p);
-					index++;
-				}
-				index = 0;
-				for (let div of numberDivs) {
-					for (let fact of factsArray[index]) {
-						div.appendChild(fact);
-					}
-					div.style.backgroundColor = "gray";
-					index++;
-				}
-			}
-		})
-		.catch((err) => {
+	const numberData = [];
+	for (let numberPromise of numbersRequests) {
+		try {
+			const data = await numberPromise;
+			numberData.push(data.data);
+		} catch (err) {
 			console.log(err);
-		});
+		}
+	}
+
+	const factsArray = [[], [], [], []];
+	for (let numbers of numberData) {
+		let index = 0;
+		for (let fact in numbers) {
+			p = document.createElement("p");
+			p.innerText = numbers[fact];
+			factsArray[index].push(p);
+			index++;
+		}
+		index = 0;
+		for (let div of numberDivs) {
+			for (let fact of factsArray[index]) {
+				div.appendChild(fact);
+			}
+			div.style.backgroundColor = "gray";
+			index++;
+		}
+	}
 });
 
 numbersRandom.addEventListener("click", function (evt) {
